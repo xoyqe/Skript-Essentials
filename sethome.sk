@@ -1,0 +1,88 @@
+command /sethome [<text>]:
+    trigger:
+        if arg 1 is set:
+            if {Homes::%arg 1%} is not set:
+                set {Homes::%arg 1%} to location of player
+                if {Home-names::*} contains arg 1:
+                    send "&7Home <##9eff00>%arg 1% &7exists."
+                else:
+                    add arg 1 to {Home-names::*}
+                    send "&7Home <##9eff00>%arg 1% &7set."
+            else:
+                send "&7Home <##9eff00>%arg 1% &7already exists."
+        else:
+            send "&cSpecify a name."
+
+# Lệnh xóa home
+command /delhome [<text>]:
+    trigger:
+        if arg 1 is set:
+            if {Homes::%arg 1%} is set:
+                delete {Homes::%arg 1%}
+                remove arg 1 from {Home-names::*}
+                send "&7Home <##9eff00>%arg 1% &7removed."
+            else:
+                send "&7Home <##9eff00>%arg 1% &7not found."
+        else:
+            send "&cProvide a name."
+
+command /home [<text>]:
+    trigger:
+        if arg 1 is set:
+            if {Homes::%arg 1%} is set:
+                send "&7Teleporting to <##9eff00>%arg 1%&7 in 5 seconds..."
+                
+                # Bắt đầu countdown
+                set {Teleporting::%player%} to "home:%arg 1%"
+                set {TeleportExpire::%player%} to (now + 5 seconds)
+                
+                # Đếm ngược từng giây
+                send action bar "&7Teleporting in <##9eff00>5&7 seconds" to player
+                wait 1 second
+                if {Teleporting::%player%} is set:
+                    send action bar "&7Teleporting in <##9eff00>4&7 seconds" to player
+                    play sound "block.note_block.xylophone" with volume 1 and pitch 2 to player
+                    wait 1 second
+                if {Teleporting::%player%} is set:
+                    send action bar "&7Teleporting in <##9eff00>3&7 seconds" to player
+                    play sound "block.note_block.xylophone" with volume 1 and pitch 2 to player
+                    wait 1 second
+                if {Teleporting::%player%} is set:
+                    send action bar "&7Teleporting in <##9eff00>2&7 seconds" to player
+                    play sound "block.note_block.xylophone" with volume 1 and pitch 2 to player
+                    wait 1 second
+                if {Teleporting::%player%} is set:
+                    send action bar "&7Teleporting in <##9eff00>1&7 second." to player
+                    play sound "block.note_block.xylophone" with volume 1 and pitch 2 to player
+                    wait 1 second
+                if {Teleporting::%player%} is set:
+                    send action bar "&7Teleported." to player
+                    play sound "BLOCK_NOTE_BLOCK_PLING" with volume 1 and pitch 2 to player
+                    teleport player to {Homes::%arg 1%}
+                    delete {Teleporting::%player%}
+                else:
+                    send "&cYou have moved and canceled your teleport." to player
+            else:
+                send "&7Home <##9eff00>%arg 1% &7not found."
+        else:
+            send "&cSpecify a name."
+
+# Huỷ teleport khi di chuyển
+on player move:
+    if {Teleporting::%player%} is set:
+        delete {Teleporting::%player%}
+        delete {TeleportExpire::%player%}
+        send action bar "&cYou have moved and canceled your teleport."
+
+# Cập nhật tab completion
+on tab complete of "/sethome":
+    set {_Home-names::*} to {Home-names::*}
+    set tab completions for position 1 to {_Home-names::*}
+
+on tab complete of "/delhome":
+    set {_Home-names::*} to {Home-names::*}
+    set tab completions for position 1 to {_Home-names::*}
+
+on tab complete of "/home":
+    set {_Home-names::*} to {Home-names::*}
+    set tab completions for position 1 to {_Home-names::*}

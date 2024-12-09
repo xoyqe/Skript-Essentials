@@ -1,0 +1,8 @@
+command /ping [<player>]:
+	trigger:
+		if arg 1 is not set:
+			send "&7Your Current Ping: <##9eff00>%player's ping% ms"
+			stop trigger
+		if arg 1 is set:
+			send "&7%arg-1%'s Ping: <##9eff00>%arg-1's ping% ms"
+			stop trigger

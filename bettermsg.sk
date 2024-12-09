@@ -1,0 +1,67 @@
+variables:
+    {last_message::%player%} = "" 
+    {ignored_players::%player%::*} = "" 
+    {toggle_msg::%player%} = false
+
+command /msg <player> <text>:
+    trigger:
+        if {toggle_msg::%argument 1%} is true:
+            send action bar "&cThis player has disabled receiving messages."
+        else if {ignored_players::%argument 1%::*} contains player:
+            send action bar "&cYou cannot send messages to this player because you are blocked by them."
+        else:
+            send "<##9eff00>YOU &7-> <##9eff00>%argument 1%&7:&f %argument 2%"
+            send "&7%player% whispers: %argument 2%" to argument 1
+            set {last_message::%argument 1%} to player
+            set {last_message::%player%} to argument 1
+
+command /reply <text>:
+    aliases: r
+    trigger:
+        if {last_message::%player%} is set:
+            set {_target} to {last_message::%player%}
+            if {toggle_msg::%{_target}%} is true:
+                send action bar "&cThis player has disabled receiving messages."
+            else if {ignored_players::%{_target}%::*} contains player:
+                send action bar "&cYou cannot reply to this player because you are blocked by them."
+            else:
+                send "<##9eff00>YOU &7-> <##9eff00>%{_target}%&7:&f %argument 1%"
+                send "<##9eff00>%player% &7-> <##9eff00>YOU&7:&f %argument 1%" to {_target}
+        else:
+            send action bar "&cNo one has whispered to you recently."
+
+command /ignore <player>:
+    aliases: block
+    trigger:
+        if argument 1 is set:
+            if {ignored_players::%player%::*} contains argument 1:
+                send action bar "&cYou have already ignored &l%argument 1%"
+            else:
+                add argument 1 to {ignored_players::%player%::*}
+                send "<##9eff00>You have ignored &l%argument 1%"
+        else:
+            send "&cUsage: /ignore <player>"
+
+command /unignore <player>:
+    aliases: unblock
+    trigger:
+        if argument 1 is set:
+            if {ignored_players::%player%::*} contains argument 1:
+                remove argument 1 from {ignored_players::%player%::*}
+                send action bar "<##9eff00>You have unignored &l%argument 1%"
+            else:
+                send action bar "&cYou have not ignored &l%argument 1%"
+        else:
+            send "&cUsage: /unignore <player>"
+
+command /togglemsg:
+    aliases: togglemsg
+    trigger:
+        if {toggle_msg::%player%} is true:
+            set {toggle_msg::%player%} to false
+            send action bar "&aYou have enabled receiving messages."
+            play sound "block.note_block.pling" with volume 1 and pitch 2 to player
+        else:
+            set {toggle_msg::%player%} to true
+            send action bar "&aYou have disabled receiving messages."
+            play sound "block.note_block.pling" with volume 1 and pitch 2 to player

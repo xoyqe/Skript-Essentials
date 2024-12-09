@@ -1,0 +1,27 @@
+command /gm [<number>]:
+    permission: skript.gamemode
+    permission message: &cYou do not have permission to use this command!
+    trigger:
+        if arg 1 is 1:
+            set player's gamemode to survival
+            send "&7Switched to <##9eff00>Survival &7mode!"
+        if arg 1 is 2:
+            set player's gamemode to creative
+            send "&7Switched to <##9eff00>Creative &7mode!"
+        if arg 1 is 3:
+            set player's gamemode to spectator
+            send "&7Switched to <##9eff00>Spectator &7mode!"
+        if arg 1 is 4:
+            set player's gamemode to adventure
+            send "&7Switched to <##9eff00>Adventure &7mode!"
+        if arg 1 is not set:
+            send "&7Please choose a game mode:"
+            send "&7- <##9eff00>1: &fSurvival"
+            send "&7- <##9eff00>2: &fCreative"
+            send "&7- <##9eff00>3: &fSpectator"
+            send "&7- <##9eff00>4: &fAdventure"
+
+on tab complete of "/gm":
+    set tab completions for position 1 to "1", "2", "3", "4"
+    set tab completions for position 2 to "Survival", "Creative", "Adventure", "Spectator"
+

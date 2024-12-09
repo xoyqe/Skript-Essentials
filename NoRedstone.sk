@@ -1,0 +1,9 @@
+on break of redstone_ore:
+    cancel event
+    drop nothing
+    send "&cỉa TV" to player
+
+on break of deepslate_redstone_ore:
+    cancel event
+    drop nothing
+    send "&cỉa TV" to player

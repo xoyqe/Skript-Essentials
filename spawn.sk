@@ -1,0 +1,38 @@
+command setspawn:
+    permission: op 
+    trigger:
+        set {spawn} to location of player
+        send "aSpawn was set to &6%{spawn}%&a!"
+
+command spawn:
+    trigger:
+        if {spawn} is set:
+            teleport player to {spawn}
+            send action bar "<##9eff00>✔ You were teleported to spawn!" to player
+            play sound "entity.player.levelup" with volume 1 and pitch 2 to player
+        else:
+            send "&cSpawn location is not set. Please use /setspawn to set it." to player
+
+on first join:
+    if {spawn} is set:
+        teleport player to {spawn}
+    else:
+        send "&cSpawn location is not set. Please use /setspawn to set it." to player
+
+on join:
+    if {firstJoin::%player%} is not set:
+        set {firstJoin::%player%} to true
+        if {spawn} is set:
+            teleport player to {spawn}
+        else:
+            send "&cSpawn location is not set. Please use /setspawn to set it." to player
+    else:
+        if {spawn} is set:
+            teleport player to {spawn}
+
+on respawn:
+    wait 1 tick
+    if {spawn} is set:
+        teleport player to {spawn}
+    else:
+        send "&cSpawn location is not set. Please use /setspawn to set it." to player

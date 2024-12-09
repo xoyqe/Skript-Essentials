@@ -1,0 +1,30 @@
+variables:
+    {muted::*} = false
+    {chat.cooldown.%player%} = 0
+
+command /mute <player>:
+    permission: skript.admin
+    permission message: &cYou do not have permission to use this command!
+    trigger:
+        if arg-1 is online:
+            if {muted::%arg-1%} is true:
+                delete {muted::%arg-1%}
+                send "<##9eff00>%arg-1% &7has been unmuted."
+                send "&cYou have been unmuted" to arg-1
+            else:
+                set {muted::%arg-1%} to true
+                send "<##9eff00>%arg-1% &7has been muted."
+                send "&cYou have been muted" to arg-1
+        else:
+            send "&cPlayer not found!"
+
+on chat:
+    if {muted::%player%} is true:
+        cancel event
+        send action bar "&cYou are muted and cannot send messages!"
+    else:
+        if difference between {chat.cooldown.%player%} and now is less than 1 seconds:
+            cancel event
+            send "&c&lHEY! &cYou are sending messages too quickly! Please slow down."
+        else:
+            set {chat.cooldown.%player%} to now

@@ -1,0 +1,5 @@
+command /online:
+    aliases: totalplayer
+    trigger:
+        set {_count} to number of all players
+        send "&7There are currently <##9eff00>%{_count}% &7players online."

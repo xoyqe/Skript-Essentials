@@ -1,0 +1,22 @@
+command /rtp:
+    cooldown: 15 seconds
+    cooldown message: &cYou need to wait a moment before using rtp again.
+    trigger:
+        loop 10 times: # Retry up to 10 times
+            set {_x} to round(random number between -3000 and 3000)
+            set {_z} to round(random number between -3000 and 3000)
+            set {_y} to round(random number between -64 and 320)
+            set {_block} to block at location at ({_x}, 0, {_z}) in world event-world
+            loop all blocks above {_block}:
+                if loop-block is air:
+                    block below loop-block is not water
+                    block below loop-block is not air
+                    if block above loop-block is air:
+                        teleport player to loop-block
+                        set {_y} to y-coordinate of loop-block
+                        send action bar "<##9eff00>✔ Teleported to a random location" to player
+                        send "<#d4d4d4>Current coordinates: X: %{_x}%, Y: %{_y}%, Z: %{_z}%" to player
+                        play sound "entity.player.levelup" with volume 1 and pitch 2 to player
+                        stop
+            wait 0 ticks
+        send "&cUnable to find a suitable location after multiple attempts." to player

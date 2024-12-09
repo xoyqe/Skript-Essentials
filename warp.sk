@@ -1,0 +1,55 @@
+
+command /setwarp [<text>]:
+    permission: warps.admin
+    permission message: &fUnknown command. Type "/help" for a list of commands!
+    trigger:
+        if arg 1 is set:
+            if {warps::%arg 1%} is not set:
+                set {warps::%arg 1%} to location of player
+                if {warp-names::*} contains arg 1:
+                    send "&7Warp <##9eff00>%arg 1% &7already exists."
+                else:
+                    add arg 1 to {warp-names::*}
+                    send "&7Warp <##9eff00>%arg 1% &7has been set to your location."
+            else:
+                send "&7Warp <##9eff00>%arg 1% &7already exists."
+        else:
+            send "&cPlease provide a name for the warp."
+
+command /delwarp [<text>]:
+    permission: warps.admin
+    permission message: &fUnknown command. Type "/help" for a list of commands!"
+    trigger:
+        if arg 1 is set:
+            if {warps::%arg 1%} is set:
+                delete {warps::%arg 1%}
+                # Cập nhật danh sách warp
+                remove arg 1 from {warp-names::*}
+                send "&7Warp <##9eff00>%arg 1% &7has been removed."
+            else:
+                send "&7Warp <##9eff00>%arg 1% &7does not exist."
+        else:
+            send "&cPlease provide the name of the warp to delete."
+
+command /warp [<text>]:
+    trigger:
+        if arg 1 is set:
+            if {warps::%arg 1%} is set:
+                teleport player to {warps::%arg 1%}
+                send "&7Teleporting to warp <##9eff00>%arg 1%&7!"
+            else:
+                send "&7Warp <##9eff00>%arg 1% &7does not exist."
+        else:
+            send "&cPlease specify the name of the warp you want to teleport to."
+
+on tab complete of "/setwarp":
+    set {_warp-names::*} to {warp-names::*}
+    set tab completions for position 1 to {_warp-names::*}
+
+on tab complete of "/delwarp":
+    set {_warp-names::*} to {warp-names::*}
+    set tab completions for position 1 to {_warp-names::*}
+
+on tab complete of "/warp":
+    set {_warp-names::*} to {warp-names::*}
+    set tab completions for position 1 to {_warp-names::*}

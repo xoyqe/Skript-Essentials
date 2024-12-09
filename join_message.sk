@@ -1,0 +1,8 @@
+on first join:
+    send "&dWelcome to the server, &l%player%!&d We're glad you're here for the first time!" to all players
+
+on join:
+    send "&e%player% has joined the game!" to all players
+
+on quit:
+    send "&e%player% has left the game!" to all players

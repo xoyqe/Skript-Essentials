@@ -1,0 +1,169 @@
+on load:
+    delete {Teleports::*}
+    delete {Teleporting::*}
+    delete {TeleportExpire::*}
+
+command /tphelp:
+    trigger:
+        send "" to player
+        send "<##9eff00>&lTeleporation Guide" to player
+        send "&7" to player
+        send "&8»<##9eff00> /tphelp - &7Displays this command." to player
+        send "&8»<##9eff00> /tpa - &7Request to teleport to a player." to player
+        send "&8»<##9eff00> /tpahere - &7Request a player teleport to you." to player
+        send "&8»<##9eff00> /tpaccept - &7Accept a teleport request." to player
+        send "&8»<##9eff00> /tpdeny - &7Denies a teleport request." to player
+        send "&8»<##9eff00> /tptoggle - &7Disable teleport requests." to player
+        send "" to player
+
+command /tptoggle:
+    trigger:
+        if {TeleportToggle::%player's uuid%} is not set:
+            set {TeleportToggle::%player's uuid%} to true
+            send action bar "&cYou will no longer be able to receive teleport requests."
+            play sound "BLOCK_NOTE_BLOCK_PLING" with volume 1 and pitch 2 to player
+        else:
+            delete {TeleportToggle::%player's uuid%}
+            send action bar "<##9eff00>You will now be able to receive teleport requests."
+            play sound "BLOCK_NOTE_BLOCK_PLING" with volume 1 and pitch 2 to player
+
+command /tpdeny [<player>]:
+    trigger:
+        if arg-1 is not player: # Kiểm tra xem người chơi có phải là chính mình không
+            if {Teleports::%arg-1%%executor%} is set:
+                send "&cYou have denied &c%arg-1%'s request to teleport." to executor
+                send "&c&lOops! &c%player% &chas denied your request to teleport." to arg-1
+                delete {Teleports::%arg-1%%executor%}
+                delete {TeleportExpire::%arg-1%%executor%} # Xóa thời gian hết hạn
+            else:
+                send "&c&lOops! &cThere is no pending teleport request from this player." to executor
+        else:
+            send "&c&lOops! &cYou cannot deny a teleport request from yourself." to executor
+
+command /tpa [<player>]:
+    trigger:
+        if arg-1 is set:
+            if arg-1 is not player: # Check if the player is not themselves
+                if {TeleportToggle::%arg-1's uuid%} is not set:
+                    if {Teleports::%executor%%arg-1%} is not set:
+                        send "<##9eff00>You have sent a teleport request to &l%arg-1%&a." to executor
+                        send "" to arg-1
+                        send "<##9eff00>&l%executor% <##9eff00>wishes to teleport to you." to arg-1
+                        send "&7Use <#d4d4d4>/tpaccept %executor% &7to accept this teleport." to arg-1
+                        send "" to arg-1
+                        set {Teleports::%executor%%arg-1%} to "To"
+                        set {TeleportExpire::%executor%%arg-1%} to (now + 45 seconds)
+                        wait 45 seconds
+                        if {Teleports::%executor%%arg-1%} is set:
+                            if {TeleportExpire::%executor%%arg-1%} < now:
+                                send "&cYour request has expired."
+                                delete {Teleports::%executor%%arg-1%}
+                                delete {TeleportExpire::%executor%%arg-1%}
+                    else:
+                        send "&c&lOops! &cYou have already sent a teleport request to this player." to executor
+                else:
+                    send "&c&lOops! &cThis player has teleport requests disabled." to executor
+            else:
+                send "&c&lOops! &cYou cannot send a teleport request to yourself." to executor
+        else:
+            send "&c&lOops! &cYou must specify a player to send a teleport request." to executor
+
+command /tpahere [<player>]:
+    trigger:
+        if arg-1 is set:
+            if arg-1 is not player: # Check if the player is not themselves
+                if {TeleportToggle::%arg-1's uuid%} is not set:
+                    if {Teleports::%executor%%arg-1%} is not set:
+                        send "<##9eff00>You have sent a teleport request to &l%arg-1%&a." to executor
+                        send "" to arg-1
+                        send "<##9eff00>&l%executor% <##9eff00>wishes for you to teleport to them." to arg-1
+                        send "&7Use <#d4d4d4>/tpaccept %executor% &7to accept this teleport." to arg-1
+                        send "" to arg-1
+                        set {Teleports::%executor%%arg-1%} to "Here"
+                        set {TeleportExpire::%executor%%arg-1%} to (now + 45 seconds)
+                        wait 45 seconds
+                        if {Teleports::%executor%%arg-1%} is set:
+                            if {TeleportExpire::%executor%%arg-1%} < now:
+                                send "&cYour request has expired."
+                                delete {Teleports::%executor%%arg-1%}
+                                delete {TeleportExpire::%executor%%arg-1%}
+                    else:
+                        send "&c&lOops! &cYou have already sent a teleport request to this player." to executor
+                else:
+                    send "&c&lOops! &cThis player has teleport requests disabled." to executor
+            else:
+                send "&c&lOops! &cYou cannot send a teleport request to yourself." to executor
+        else:
+            send "&c&lOops! &cYou must specify a player to send a teleport request." to executor
+                
+command /tpaccept [<player>]:
+    trigger:
+        if {Teleports::%arg-1%%executor%} is "To":
+            if {TeleportExpire::%arg-1%%executor%} is set:
+                if {TeleportExpire::%arg-1%%executor%} > now:
+                    set {Teleporting::%arg-1%} to true
+                    delete {Teleports::%arg-1%%executor%}
+                    delete {TeleportExpire::%arg-1%%executor%} # Xóa thời gian hết hạn
+                    if {Teleporting::%arg-1%} is set:
+                        send "<##9eff00>&l%executor% <##9eff00>has accepted your request. Don't move" to arg-1
+                        send "&7You have accepted." to executor
+                        play sound "BLOCK_NOTE_BLOCK_PLING" with volume 1 and pitch 2 to player
+                        send "&7Teleporting in <##9eff00>5&7 seconds" to arg-1
+                        wait 1 second
+                    if {Teleporting::%arg-1%} is set:
+                        send "&7Teleporting in <##9eff00>4&7 seconds" to arg-1
+                        wait 1 second
+                    if {Teleporting::%arg-1%} is set:
+                        send "&7Teleporting in <##9eff00>3&7 seconds" to arg-1
+                        wait 1 second
+                    if {Teleporting::%arg-1%} is set:
+                        send "&7Teleporting in <##9eff00>2&7 seconds" to arg-1
+                        wait 1 second
+                    if {Teleporting::%arg-1%} is set:
+                        send "&7Teleporting in <##9eff00>1&7 second." to arg-1
+                        wait 1 second
+                    if {Teleporting::%arg-1%} is set:
+                        send "&7Teleported." to arg-1
+                        play sound "BLOCK_NOTE_BLOCK_PLING" with volume 1 and pitch 2 to arg-1
+                        teleport arg-1 to executor
+                        delete {Teleporting::%arg-1%}
+                        stop
+                else:
+                    send "&c&lOops! &cThe teleport request has expired." to executor
+        else if {Teleports::%arg-1%%executor%} is "Here":
+            if {TeleportExpire::%executor%%arg-1%} is set:
+                if {TeleportExpire::%executor%%arg-1%} > now:
+                    set {Teleporting::%executor%} to true
+                    delete {Teleports::%arg-1%%executor%}
+                    delete {TeleportExpire::%executor%%arg-1%} # Xóa thời gian hết hạn
+                    if {Teleporting::%executor%} is set:
+                        send "<##9eff00>&l%executor% <##9eff00>has accepted your request." to arg-1
+                        send "&7You have accepted." to executor
+                        play sound "BLOCK_NOTE_BLOCK_PLING" with volume 1 and pitch 2 to player
+                        send "&7Teleporting in <##9eff00>5&7 seconds" to executor
+                        wait 1 second
+                    if {Teleporting::%executor%} is set:
+                        send "&7Teleporting in <##9eff00>4&7 seconds" to executor
+                        wait 1 second
+                    if {Teleporting::%executor%} is set:
+                        send "&7Teleporting in <##9eff00>3&7 seconds" to executor
+                        wait 1 second
+                    if {Teleporting::%executor%} is set:
+                        send "&7Teleporting in <##9eff00>2&7 seconds" to executor
+                        wait 1 second
+                    if {Teleporting::%executor%} is set:
+                        send "&7Teleporting in <##9eff00>1&7 second" to executor
+                        wait 1 second
+                    if {Teleporting::%executor%} is set:
+                        send "&7Teleported." to executor
+                        play sound "BLOCK_NOTE_BLOCK_PLING" with volume 1 and pitch 2 to executor
+                        teleport executor to arg-1
+                        delete {Teleporting::%executor%}
+                        stop
+                else:
+                    send "&c&lOops! &cThe teleport request has expired." to executor
+
+on player move:
+    if {Teleporting::%player%} is set:
+        delete {Teleporting::%player%}
+        send action bar "&cYou have moved and canceled your teleport."

@@ -1,0 +1,15 @@
+function clearlag():
+    wait 15 seconds
+    broadcast "&7Killed <##9eff00>%size of dropped items% &7dropped items"
+    kill dropped items
+
+command clearlag:
+    aliases: cl
+    permission: clearlag
+    permission message: &cYou do not have permission to execute this command!
+    trigger:
+        clearlag()
+
+every 180 seconds:
+    execute console command "arena reset flat extreme"
+    clearlag()

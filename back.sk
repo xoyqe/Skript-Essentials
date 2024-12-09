@@ -1,0 +1,10 @@
+on death of player:
+    set {_deathLoc} to location of victim
+    set {deathLocation::%victim's uuid%} to {_deathLoc}
+
+command /back:
+    trigger:
+        if {deathLocation::%player's uuid%} is set:
+            teleport player to {deathLocation::%player's uuid%}
+        else:
+            send "&cYou don't have a death location to return to" to player
